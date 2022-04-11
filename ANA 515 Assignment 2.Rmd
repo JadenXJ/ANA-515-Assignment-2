@@ -1,0 +1,58 @@
+---
+title: "Assignment 2"
+author: "Jaden Jefferson"
+date: "4/10/2022"
+output:
+  word_document: default
+
+---
+
+The dataset I am using is COVID-19 dataset maintained by Our World in Data. The data measures different stats across multiple metrics (vaccination, test & positivity, Hospital &ICU, confirmed cases, confirmed deaths, reproduction rate, policy responses, etc), which all reported by different groups. These groups include Center for Systems Science and Engineering at Johns Hopkins University, Our World in Data, and different government and health agencies for individual countries. Also, there are some data references by global organizations such as United Nations, World bank, etc. The data is a flat file saved as an CSV. The file looks like it is coma delimtted.
+
+```{r setup, include=TRUE, message=FALSE, warning=FALSE}
+
+#install.packages("tidyverse")
+#install.packages("knitr")
+#install.packages("bslib")
+#install.packages("readr")
+#install.packages("dplyr")
+
+library(tidyverse)
+library(knitr)
+library(bslib)
+library(readr)
+library(dplyr)
+```
+```{r echo=TRUE, include=TRUE, message=FALSE}
+url<- "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+covid<-read_csv(url)
+
+#I used the read_csv function from tidyverse. Their as so many obs I was not able to have it import fast enough with read.csv and got impatient.I am curious if I should have took away some columns before importing the whole dataset.
+```
+
+```{r include=TRUE}
+rename(covid,cardiovasc_death_rate_per_hundrdthou=cardiovasc_death_rate)
+
+covid_cases<- select(covid, continent, location, date, total_cases_per_million, new_cases_per_million, total_deaths_per_million, new_deaths_per_million, total_tests_per_thousand, people_vaccinated_per_hundred,people_fully_vaccinated_per_hundred, total_boosters_per_hundred, population)
+
+```
+Covid_cases has `r nrow(covid_cases)` rows and `r ncol(covid_cases)` columns. The name of the columns and a brief description of each are in the table below:
+
+```{r results = TRUE}
+columns_summary <- data.frame(
+Columns = c(colnames(covid_cases)),
+Description = c(
+"Continent of the geographical location","Geographical location","Date of observation","Total confirmed cases of COVID-19 per 1,000,000 people (counts can include probable cases where reported)", "New confirmed cases of COVID-19 per 1,000,000 people counts can include probable cases, where reported", "Total deaths attributed to COVID-19 per 1,000,000 people counts can include probable deaths, where reported", "New deaths attributed to COVID-19 per 1,000,000 people counts can include probable deaths, where reported","Total tests administered per 1,000 people", "Total number of people who received at least one vaccine dose per hundred", "Total number of people who received all doses prescribed by the initial vaccination protocol per 100 people","Total number of COVID-19 vaccination booster doses administered per 100 people in the total population", "Population")
+)
+
+kable(columns_summary, caption = "Covid Cases Stats")
+```
+```{r include= TRUE}
+covid_cases1<- select(covid_cases,location, total_cases_per_million, total_deaths_per_million)
+
+covid_cases1_na_omitted <- na.omit(covid_cases1)
+
+Summarytable<- summary(covid_cases1_na_omitted)
+
+print(Summarytable)
+```
